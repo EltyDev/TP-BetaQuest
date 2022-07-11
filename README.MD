@@ -1,46 +1,14 @@
 
 
-# Twilight Princess - REL
-This is a template repository for you to create your very own Twilight Princess mod and provide a simple start to write your code. Kind of like a "hello world" for TP.
+# Twilight Princess - Beta Quest
+Inspired by The Legend of Zelda : Ocarina of Time Beta Quest, like him the goal of this mod is to randomize loading zones of the game
 
-## Project Structure
----
-```
-REL
-├───externals/              // Submodules or other dependencies are placed here
-│   │   ├───libtp_rel/
-│   │   │   ├───include/    // Library Header files
-│   │   │   ├───source/     // Library source files
-├───assets/                 // Additional resources that are not code
-│   ├───banner.raw          // Game banner for the GCI
-|   ├───icon.raw            // Game icon for the GCI
-│   ├───*.lst          	    // Symbol:Address pairs for each version of the game
-├───bin/                    // Binary files and scripts
-│   ├───elf2rel             // Linux Binary of elf2rel
-│   ├───elf2rel.exe         // Windows "
-│   ├───gcipack.py          // Packs a REL into a GCI
-├───docs/                   // Doxygen Output folder; can be used for GitHub pages - change in doxygen.conf
-├───include/                // Your Header (.h) files
-├───source/                 // Your Source (.cpp) files
-├───Makefile                // Build script
-├───.clang-format           // clang-format configuration file
-├───doxygen.conf            // doxygen configuration file
-```
-
-## Getting started
----
-This repository provides you with a solid start, you should use the predefined main function as an entry point to your mod...
-Please check Lines 12 through 23 in the Makefile to change some of the definitions and names.
-
-You can refer to the [Randomizer](//github.com/zsrtp/Randomizer) Project for reference.
-
-## Wiki
----
-### General
-Our [wiki](//wiki.zeldatp.net) is meant to be a central source of information for TP with a slightly technical focus we provide the most crucial information such as Stages & Rooms or item ids. If you're looking for information you should be looking there or ask in the [dev discord](//discord.gg/aZx8ZFcSPy).
-
-### Coding guidelines
-If you intend to share this code with the @zsrtp community, please follow the [guidelines](//wiki.zeldatp.net/Dev:Coding_Guidelines) as strictly as possible.
+## Roadmap
+|Name            |Description|Status|
+|----------------|--------------|-------------------------------|
+|Loading Room Randomizer|Loaded room's stage can be entirely random|✔️Implemented|
+|Loading Stage Randomizer|Loaded stage can be entirely random|🔧In the works|
+|Fix Soft-lock seed|Certains seed can make the game unwinnable|🔧Planned|
 
 ## Building
 ---
@@ -52,7 +20,7 @@ Open a CMD and navigate to where you want your code to be:
 ```
 C:\>mkdir Code
 C:\>cd Code
-C:\Code>git clone https://github.com/zsrtp/REL.git
+C:\Code>git clone https://github.com/Venodez/TP-BetaQuest.git
 Cloning into REL
 remote: Enumerating objects: 132, done.
 remote: Counting objects: 100% (132/132), done.
