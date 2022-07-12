@@ -12,6 +12,13 @@
 #include <main.h>
 #include <patch.h>     // Contains code for hooking into a function
 #include <tp/f_ap_game.h>
+#include <tp/m_do_controller_pad.h>
+#include <tp/d_com_inf_game.h>
+#include "tp/f_pc_node_req.h"
+#include <tp/f_op_scene_req.h>
+#include <cstring>
+#include "tools.h"
+#include "random/data.h"
 
 namespace mod
 {
@@ -25,47 +32,70 @@ namespace mod
 
     void exit() {}
 
-    // Create our console instance (it will automatically display some of the definitions from our Makefile like version,
-    // variant, project name etc.
-    // this console can be used in a similar way to cout to make printing a little easier; it also supports \n for new lines
-    // (\r is implicit; UNIX-Like) and \r for just resetting the column and has overloaded constructors for all of the
-    // primary cinttypes
-    Mod::Mod(): c( 0 ) { i = 0; }
+    Mod::Mod(): console( 0 ) { ticks = 0; }
 
     void Mod::init()
     {
-        /**
-         * Old way of printing to the console
-         * Kept for reference as its still being used by the new console class.
-         *
-         * libtp::display::setConsole(true, 25);
-         * libtp::display::print(1, "Hello World!");
-         */
-        c << "Hello world!\n\n";
-
-        // Technically I prefer to do the function hooks at the very top but since this is a template I'll do it here so we can
-        // have hello world at the top
-
         gMod = this;
-        // Hook the function that runs each frame
+        randomizer = new random::Randomizer();
         return_fapGm_Execute =
             libtp::patch::hookFunction( libtp::tp::f_ap_game::fapGm_Execute, []() { return gMod->procNewFrame(); } );
     }
 
     void Mod::procNewFrame()
     {
-        // This runs BEFORE the original (hooked) function (fapGm_Execute)
+        using namespace libtp::tp::f_pc_node_req;
+        using namespace libtp::tp::d_com_inf_game;
+        using namespace libtp::tp::f_op_scene_req;
+        using namespace libtp::tp::m_do_controller_pad;
+        using namespace mod::random::data;
 
-        // we can do whatever stuff we like... counting for example:
-        i++;
-        c << "\r"
-          << "Frames: " << i;
+        ++ticks;
+        if (l_fpcNdRq_Queue) {
+            uint8_t prevState = gameState;
+            uint8_t state = *reinterpret_cast<uint8_t*>( reinterpret_cast<uint32_t>(l_fpcNdRq_Queue) + 0x59 );
+            if ( prevState != GAME_ACTIVE && state == 11 ) {
+                if (strcmp( "S_MV000", dComIfG_gameInfo.nextStageVars.nextStage) != 0)
+                    gameState = GAME_ACTIVE;
+            } else if (prevState != GAME_TITLE && ( state == 12 || state == 13 ))
+                    gameState = GAME_TITLE;
+            if  (gameState == GAME_ACTIVE && prevState == GAME_TITLE) {
+                uint64_t temp_seed = ticks;
+                libtp::tools::getRandom(&temp_seed, 0);
+                randomizer->init(temp_seed);
+            }
+        }
+        if (cpadInfo.buttonInput == 0x30 && lastButton != 0x30)
+            setScreen(!consoleState);
+        lastButton = cpadInfo.buttonInput;
+        if (isLoading && !isRandomized && gameState == GAME_ACTIVE) {
+            mod::random::Warp warp = mod::random::getWarp(randomizer->getWarps(), dComIfG_gameInfo.currentStage, actualRoom);
+            strcpy(dComIfG_gameInfo.nextStageVars.nextStage, warp.stageTo);
+            dComIfG_gameInfo.nextStageVars.nextRoom = warp.roomTo;
+            dComIfG_gameInfo.nextStageVars.nextState = 0xFF;
+            dComIfG_gameInfo.nextStageVars.nextSpawnPoint = 0x00;
+            dComIfG_gameInfo.nextStageVars.isVoidorWarp = 0x00;
+            isRandomized = true;
+        } else if (!isLoading)
+            isRandomized = false;
+        console.setLine(6);
+        console << "\r"
+          << "Frames: " << ticks << "\n"
+          << "Map: " << dComIfG_gameInfo.currentStage << "\n"
+          << "Is Loading: " << isLoading << "\n"
+          << "Room: " << dComIfG_gameInfo.nextStageVars.nextRoom << "\n"
+          << "Seed: " << *randomizer->getSeed() << "\n"
+          << "Game State: " << gameState << "\n"
+          << "Warping Type: " << dComIfG_gameInfo.nextStageVars.isVoidorWarp << "\n"
+          << "Trigger Load: " << dComIfG_gameInfo.nextStageVars.triggerLoad << "\n"
+          << "Randomizer: " << "{ " << randomizer->getWarps()[0].stageFrom << " [" << randomizer->getWarps()[0].roomFrom << "]} -> " << randomizer->getWarps()[0].stageTo << " [" << randomizer->getWarps()[0].roomTo << "]}";
+        actualRoom = dComIfG_gameInfo.nextStageVars.nextRoom;
+        return return_fapGm_Execute();
+    }
 
-        // return what our original function would've returned (in this case the return is obsolete since it is a void func)
-        // And most importantly, since this is related to the frame output, call the original function at all because it may do
-        // important stuff that would otherwise be skipped!
-
-        return return_fapGm_Execute();     // hookFunction replaced this return_ function with a branch back to the original
-                                           // function so that we can use it now
+    void Mod::setScreen( bool state )
+    {
+        consoleState = state;
+        libtp::display::setConsole( state, 0 );
     }
 }     // namespace mod
