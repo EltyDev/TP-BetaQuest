@@ -53,6 +53,9 @@
 // data
 80388C0C:ladderVars
 
+// f_pc_node_req
+8039DB98:l_fpcNdRq_Queue
+
 // d_menu_collect.o
 801B3300:setWalletMaxNum
 

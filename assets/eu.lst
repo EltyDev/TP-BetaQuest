@@ -6,6 +6,10 @@
 // text
 8000EDA8:getArchiveHeapPtr
 
+// m_Do_MemCard.o
+// data
+803E2EE0:MemCardWorkArea0
+
 // d_stage
 800267B4:roomTresureInit
 80027DAC:setTresure
@@ -37,6 +41,9 @@
 8001C21C:createItemForMidBoss
 8001C260:createItemForDirectGet
 
+// f_pc_node_req
+803A5718:l_fpcNdRq_Queue
+
 // d_map_path_dmap.o
 8003EF8C:getMapPlayerPos
 
@@ -59,6 +66,18 @@
 // JKRExpHeap.o
 802CFF28:do_alloc_JKRExpHeap
 802D05AC:do_free_JKRExpHeap
+
+// Card
+803548F8:CARDInit
+80357724:CARDCheck
+80358124:CARDMount
+80358208:CARDUnmount
+803596FC:CARDRead
+80359A78:CARDWrite
+80358EE4:CARDClose
+80358DC8:CARDOpen
+8035787C:CARDProbeEx
+80359CB8:CARDGetStatus
 
 // OSCache.o
 // 8033C36C:DCEnable
