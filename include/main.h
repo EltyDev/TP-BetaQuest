@@ -1,6 +1,6 @@
 /**
  * @file main.h
- * @author your name (you@domain.com)
+ * @author Venodez
  * @brief
  * @version 0.1
  * @date YYYY-MM-DD
@@ -11,8 +11,12 @@
 #pragma once
 #include <display/console.h>
 #include <tp/f_ap_game.h>
-
 #include <cinttypes>
+#include "random/randomizer.h"
+
+#define GAME_BOOT 0
+#define GAME_TITLE 1
+#define GAME_ACTIVE 2 
 
 namespace mod
 {
@@ -27,18 +31,27 @@ namespace mod
      * This main function is going to be executed once at the beginning of the game,
      * assuming the REL got loaded in the first place.
      ***********************************************************************************/
+
     void main();
     class Mod
     {
-       public:
+        public:
         Mod();
+        void setScreen( bool state ); 
         void init();
 
-       private:
+        private:
         // Counter
-        int i;
+        int ticks;
+        bool consoleState = true;
+        uint32_t lastButton = 0;
+        bool isRandomized = false;
+        uint8_t actualRoom = 0;
+        mod::random::Randomizer *randomizer;
+        uint8_t gameState = GAME_BOOT;
+
         // Console
-        libtp::display::Console c;
+        libtp::display::Console console;
         // "trampoline/return" function to the original function that we hook in order to proc our NewFrame function
         void ( *return_fapGm_Execute )() = nullptr;
 
