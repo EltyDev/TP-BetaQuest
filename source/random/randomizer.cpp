@@ -5,7 +5,7 @@
  *	@bug No known bugs.
  */
 
-#include "randomizer.h"
+#include "random/randomizer.h"
 
 #include <cstring>
 
